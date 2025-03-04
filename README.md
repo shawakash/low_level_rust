@@ -1,6 +1,6 @@
-# Rust Smart Pointers Implementation
+# Rust Low Level Implementation
 
-This project contains custom implementations of Rust's smart pointers and interior mutability types, helping to understand how they work under the hood.
+This project contains custom implementations of some of the Rust's low level types, helping to understand how they work under the hood.
 
 ## Implementations
 
@@ -39,11 +39,9 @@ if let Some(value) = ref_cell.borrow() {
 These implementations use `unsafe` code internally but provide a safe interface to users. They maintain Rust's memory safety guarantees through runtime checks and careful management of internal state.
 
 ## TODOs
-- [ ] Implement Rc (Reference Counting)
+- [x] Implement Rc (Reference Counting)
+- [ ] Implement Iterators
 - [ ] Add more test cases
-- [ ] Add documentation
-- [ ] Implement Arc (Atomic Reference Counting)
-- [ ] Add thread safety features
 
 ## Learning Resources
 
