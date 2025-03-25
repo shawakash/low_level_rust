@@ -53,7 +53,7 @@ impl<T> Drop for Rc<T> {
         let inner = unsafe { self.inner.as_ref() };
         let c = inner.ref_count.get();
         if c == 1 {
-            drop(inner);
+            let _ = inner;
             // SAFETY: we are the only rc left,and we are being dropped
             // therefore after us there would no rc with this inner
             let _ = unsafe { Box::from_raw(self.inner.as_ptr()) };
