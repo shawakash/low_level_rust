@@ -117,8 +117,16 @@ fn ping_pong() {
 }
 
 #[test]
-fn closed() {
+fn closed_tx() {
     let (tx, mut rx) = channel::<()>();
     drop(tx);
     assert_eq!(rx.recv(), None);
+}
+
+#[test]
+fn closed_rx() {
+    let (mut tx, rx) = channel();
+    // should send something when a drop happens, like a message
+    drop(rx);
+    tx.send(11);
 }
