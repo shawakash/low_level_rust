@@ -1,4 +1,5 @@
 pub mod cell;
+pub mod channel;
 pub mod iter;
 pub mod mutex;
 pub mod rc;
