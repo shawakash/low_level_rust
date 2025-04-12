@@ -60,6 +60,7 @@ impl<T> Sender<T> {
 
 pub struct Receiver<T> {
     shared: Arc<Shared<T>>,
+    buffer: VecDeque<T>,
 }
 
 impl<T> Clone for Receiver<T> {
@@ -67,17 +68,30 @@ impl<T> Clone for Receiver<T> {
         Receiver {
             // we dont want inner.clone as we have inner in Arc
             shared: Arc::clone(&self.shared),
+            buffer: VecDeque::default(),
         }
     }
 }
 
 impl<T> Receiver<T> {
     pub fn recv(&mut self) -> Option<T> {
+        // if we have something in the buffer, return it
+        if let Some(t) = self.buffer.pop_front() {
+            return Some(t);
+        }
+
         // Unwrap coz, the last thread could panic having mutex locked
         let mut inner = self.shared.inner.lock().unwrap();
         loop {
             match inner.queue.pop_front() {
-                Some(t) => return Some(t),
+                Some(t) => {
+                    // if we have something in the queue, we swap it with the buffer
+                    // so we dont have to take the mutex lock for the reciver, optimizing for tx
+                    if !inner.queue.is_empty() {
+                        std::mem::swap(&mut self.buffer, &mut inner.queue)
+                    }
+                    return Some(t);
+                }
                 None if inner.senders == 0 => {
                     // no more senders, return None
                     return None;
@@ -105,6 +119,7 @@ pub fn channel<T>() -> (Sender<T>, Receiver<T>) {
         },
         Receiver {
             shared: shared.clone(),
+            buffer: VecDeque::default(),
         },
     )
 }
